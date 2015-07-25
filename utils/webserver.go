@@ -50,12 +50,12 @@ func results (w http.ResponseWriter, r *http.Request){
 
 // Writes the correspondent metadata results (url, title etc.)
 // to the client, based on the first 5 results.
-func writeSearchResponse (w *http.ResponseWriter, result map[int]Result ){
+func writeSearchResponse (w *http.ResponseWriter, result map[int]Result){
 
 }
 
 // Writes the correspondent (minified) html
 // for a single result to the client.
-func writeResultResponse (w *http.ResponseWriter, minHTML string ){
+func writeResultResponse (w *http.ResponseWriter, minHTML string){
 
 }

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"time"
+	"net/url"
 )
 
 // base URL for Googles Search REST API
@@ -20,7 +21,6 @@ type Result struct{
 	description string
 	url string
 	document string
-	id int
 }
 
 // makes a google search for the query and writes minified documents
@@ -52,7 +52,7 @@ func processResultQuery(url string) (minifiedDoc string){
 func googleQuery(query string) (map[int]Result, error){
 	apiKey := string(os.Args[2])
 	cxID := string(os.Args[3])
-	queryString := fmt.Sprint("key=", apiKey, "&cx=", cxID, "&q=", query)
+	queryString := fmt.Sprint("key=", apiKey, "&cx=", cxID, "&q=", url.QueryEscape(query))
 	apiResponse, err := http.Get(apiBaseURL + queryString)
 
 	if err != nil || apiResponse.StatusCode != 200 {
@@ -92,8 +92,10 @@ func waitForAllMinifiedResults(c chan map[string]string){
 
 // writes result into redis DB to cache it.
 // key: url, value: minified document
-func writeToDB(map[string]string){
-	//TODO
+func writeToDB(newDBEntry map[string]string){
+	if newDBEntry[""] != "cached"{
+		// TODO
+	}
 }
 
 // queries one KEY of db, returns appropiate value if present

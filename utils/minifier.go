@@ -1,7 +1,6 @@
 package utils
 import (
-	"net/http"
-	"io/ioutil"
+	"github.com/PuerkitoBio/goquery"
 )
 
 // Minifies search result documents by making a GET request to the URL,
@@ -9,19 +8,15 @@ import (
 func minifyResults(resMap map [int]Result,c chan map[string]string){
 	for _, result := range resMap {
 		if siteIsAlreadyCached(result.url){
-			c <- map[string]string{"": ""}
+			c <- map[string]string{"": "cached"}
 			continue
 		}
 
-		resp, err := http.Get(result.url)
+		doc, err := goquery.NewDocument(result.url)
 		if err != nil {
 			// TODO
 		}
-		document, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			// TODO
-		}
-		go minifyDocument(result.url, string(document), c)
+		go minifyDocument(result.url, doc, c)
 	}
 }
 
