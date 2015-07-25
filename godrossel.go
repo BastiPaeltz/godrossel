@@ -12,7 +12,7 @@ func main() {
 	utils.StartWebserver(string(os.Args[1]))
 }
 
-// starts the gonitor logger.
+// starts the logger.
 // Creates new log file, if none exists.
 // Else write to already existing one.
 func startLogger(fileName string) {
