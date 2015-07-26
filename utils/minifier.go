@@ -3,6 +3,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+
 // Minifies search result documents by making a GET request to the URL,
 // if it is not cached already. Writes result to channel.
 func minifyResults(resMap map [int]Result,c chan map[string]string){
@@ -21,10 +22,19 @@ func minifyResults(resMap map [int]Result,c chan map[string]string){
 }
 
 // Minifies document, means no media content, no css, no js
-func minifyDocument(url string,document string, c chan map[string]string){
-	var minifiedDoc string
-	// TODO : minify document with goquery
-	c <- map[string]string{url: minifiedDoc}
+func minifyDocument(url string,doc *goquery.Document, c chan map[string]string){
+	tagsToBeRemoved := []string{"img", "video", "link", "audio", "track",
+		"embed", "iframe", "source", "canvas", "script"}
+	for _, singleTag := range tagsToBeRemoved {
+		doc.Find(singleTag).Each(func(i int, s *goquery.Selection) {
+			s.Remove()
+		})
+	}
+	minifiedHtml, err := doc.Html()
+	if err != nil{
+		//TODO
+	}
+	c <- map[string]string{url: minifiedHtml}
 }
 
 // returns true if site is already present in database,
@@ -35,3 +45,4 @@ func siteIsAlreadyCached(url string) (bool){
 	}
 	return true
 }
+
