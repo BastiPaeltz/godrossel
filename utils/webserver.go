@@ -1,12 +1,28 @@
 package utils
-import "net/http"
+import (
+	"net/http"
+	"gopkg.in/redis.v3"
+)
 
 
-// Starts a webserver which only listens to
+
+type searchHandler struct {
+	client *redis.Client
+}
+
+type resultHandler struct {
+	client *redis.Client
+}
+
+
+// Starts a webserver which listens on
 // '/' and '/results' route.
 func StartWebserver(addr string) {
-	http.HandleFunc("/", search)
-	http.HandleFunc("/results", results)
+	redisClient := NewRedisClient()
+	searchHandler := &searchHandler{client:redisClient}
+	resultHandler := &resultHandler{client:redisClient}
+	http.Handle("/", searchHandler)
+	http.Handle("/results", resultHandler)
 	http.ListenAndServe(addr, nil)
 }
 
@@ -15,18 +31,18 @@ func StartWebserver(addr string) {
 // but in the querystring.
 // Parses query string, fails early if no
 // 'search' parameter is provided.
-func search (w http.ResponseWriter, r *http.Request){
+func (sh searchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
-	if queryParams.Get("search") == ""{
+	if queryParams.Get("search") == "" {
 		w.Write([]byte("Please specifiy a search in the query string"))
 	}
 
 	searchResult, err := processSearchQuery(queryParams.Get("search"),
-		queryParams.Get("raw"))
-	if err != nil{
+		queryParams.Get("raw"), sh.client)
+	if err != nil {
 		// TODO
 	}
-	writeSearchResponse(&w, searchResult)
+	writeSearchResponse(w, searchResult)
 }
 
 
@@ -35,27 +51,29 @@ func search (w http.ResponseWriter, r *http.Request){
 // but in the querystring.
 // Parses query string, fails early if no
 // 'url' parameter is provided.
-func results (w http.ResponseWriter, r *http.Request){
+func (rh resultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
-	if queryParams.Get("url") == ""{
+	if queryParams.Get("url") == "" {
 		w.Write([]byte("No id specified."))
 	}
 
-	result := processResultQuery(queryParams.Get("id"))
+	result := processResultQuery(queryParams.Get("id"), rh.client)
 	if result == "" {
 		// TODO
 	}
-	writeResultResponse(&w, result)
+	writeResultResponse(w, result)
 }
 
 // Writes the correspondent metadata results (url, title etc.)
 // to the client, based on the first 5 results.
-func writeSearchResponse (w *http.ResponseWriter, result map[int]Result){
-
+func writeSearchResponse(w http.ResponseWriter, result map[int]Result) {
+	//	w.Header().Set("Content-Type", "text/html")
+	//	w.Write([]byte("This is dog."))
+	// TODO
 }
 
 // Writes the correspondent (minified) html
 // for a single result to the client.
-func writeResultResponse (w *http.ResponseWriter, minHTML string){
-
+func writeResultResponse(w http.ResponseWriter, minHTML string) {
+	// TODO
 }

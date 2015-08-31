@@ -8,11 +8,6 @@ import (
 // if it is not cached already. Writes result to channel.
 func minifyResults(resMap map [int]Result,c chan map[string]string){
 	for _, result := range resMap {
-		if siteIsAlreadyCached(result.url){
-			c <- map[string]string{"": "cached"}
-			continue
-		}
-
 		doc, err := goquery.NewDocument(result.url)
 		if err != nil {
 			// TODO
@@ -37,12 +32,4 @@ func minifyDocument(url string,doc *goquery.Document, c chan map[string]string){
 	c <- map[string]string{url: minifiedHtml}
 }
 
-// returns true if site is already present in database,
-// false otherwise
-func siteIsAlreadyCached(url string) (bool){
-	if queryDBKey(url) == ""{
-		return false
-	}
-	return true
-}
 

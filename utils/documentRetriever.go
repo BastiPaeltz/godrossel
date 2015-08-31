@@ -7,15 +7,18 @@ import (
 	"io/ioutil"
 	"time"
 	"net/url"
+    "gopkg.in/redis.v3"
 )
+
+// everything that has to do with getting results from the google search API
+// and putting it into the redis DB and eventually returning the result to
+// the caller goes in here.
 
 // base URL for Googles Search REST API
 const apiBaseURL string = "https://www.googleapis.com/customsearch/v1?"
 
-
-// maps a google search result
-// plus a unique id which identifies the result internally
-// and the minified document
+// encapsulates a result from a google search
+// and the minified document content (html content)
 type Result struct{
 	title string
 	description string
@@ -23,33 +26,33 @@ type Result struct{
 	document string
 }
 
+// maps the returned JSON from the Google Search API
+// (only interesting fields from response included)
+// TODO
+type SearchApiResponse struct{
+
+}
+
 // makes a google search for the query and writes minified documents
 // of the 5 best results to the database.
 // Returns
-func processSearchQuery(query string, raw string) (map[int]Result, error){
-	topResults, err := googleQuery(query)
+func processSearchQuery(query string, raw string, client *redis.Client) (map[int]Result, error){
+	//TODO: process 'raw' parameter
+	topResults, err := googleSearchQuery(query)
 	if err != nil {
 		// TODO
 	}
 	c := make(chan map[string]string)
 	go minifyResults(topResults, c)
-	waitForAllMinifiedResults(c)
+	waitForAllMinifiedResults(client, c)
 	return topResults, nil
 }
 
-// makes a query to the database for the requested result url.
-// Returns empty string if nothing is found,
-// otherwise a string containing the (minified) document
-func processResultQuery(url string) (minifiedDoc string){
-	requestedDocument := queryDBKey(url)
-	return requestedDocument
-}
-
 // querys Googles REST search api.
-// error is non-nill, if something failed.
+// error is non-nil, if something failed.
 // Else this returns a map containing the 5 best matches/results
 // (in descending order).
-func googleQuery(query string) (map[int]Result, error){
+func googleSearchQuery(query string) (map[int]Result, error){
 	apiKey := string(os.Args[2])
 	cxID := string(os.Args[3])
 	queryString := fmt.Sprint("key=", apiKey, "&cx=", cxID, "&q=", url.QueryEscape(query))
@@ -72,17 +75,18 @@ func googleQuery(query string) (map[int]Result, error){
 // returns a map containing the 5 best matches/results
 // (in descending order)
 func filterResponse(jsonBody []byte) (map[int]Result){
-	return
+	return nil
 }
 
-// waits till all 5 results are received on the channel
-func waitForAllMinifiedResults(c chan map[string]string){
+// waits till all 5 results are received on the channel,
+// writes to DB concurrently
+func waitForAllMinifiedResults(client *redis.Client, c chan map[string]string){
 	returnedResults := 0
 	for returnedResults < 5 {
 		select {
 		case minifiedResult := <-c:
 			returnedResults++
-			go writeToDB(minifiedResult)
+			go writeToDB(client, minifiedResult)
 		default:
 			time.Sleep(1 * time.Millisecond)
 		}
@@ -90,17 +94,3 @@ func waitForAllMinifiedResults(c chan map[string]string){
 	return
 }
 
-// writes result into redis DB to cache it.
-// key: url, value: minified document
-func writeToDB(newDBEntry map[string]string){
-	if newDBEntry[""] != "cached"{
-		// TODO
-	}
-}
-
-// queries one KEY of db, returns appropiate value if present
-// or the empty string if not.
-func queryDBKey(key string) (string){
-	// TODO
-	return
-}
