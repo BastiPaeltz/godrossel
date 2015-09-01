@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<h1>This is your godrossel result for '{{.Search}}'</h1>
+<br>
+{{ range $key, $value := .Result}}
+<li><strong>{{ $key }}</strong>:
+    <a href='/results?url={{ $value.Link }}'>{{ $value.HtmlTitle }}</a> -
+    <i>{{$value.DisplayLink }} </i>
+    <br>{{ $value.HtmlSnippet }}
+</li>
+<br>
+{{ end }}
+</html>
