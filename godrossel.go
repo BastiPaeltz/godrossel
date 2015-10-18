@@ -12,6 +12,7 @@ import (
 // more info about cxid and api key:
 // https://console.developers.google.com/project/ (api key)
 // https://cse.google.com/all (cx id)
+
 func main() {
 	startLogger("godrossel.log")
 	utils.StartWebserver(string(os.Args[1]))

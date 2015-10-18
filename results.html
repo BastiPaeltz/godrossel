@@ -1,7 +1,25 @@
 <!DOCTYPE html>
 <html>
-<meta charset="UTF-8">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="changeURL.js"></script>
+</head>
+<body>
 <h1>This is your godrossel result for '{{.Search}}'</h1>
+<br>
+
+<form id="searchForm">
+    <label for="searchField">Search for something:</label>
+    <input type="text" id="searchField">
+    <input type="submit" value="Search">
+</form>
+<!--<script>-->
+    <!--$('#searchForm').submit(function(ev) {-->
+        <!--window.location = "?search=" +-->
+                <!--document.getElementById("searchField").value;-->
+    <!--});-->
+<!--</script>-->
 <br>
 {{ range $key, $value := .Result}}
 <li><strong>{{ $key }}</strong>:
@@ -11,4 +29,5 @@
 </li>
 <br>
 {{ end }}
+</body>
 </html>

@@ -42,15 +42,15 @@ func (sh searchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	searchTerm := queryParams.Get("search")
 	if searchTerm == "" {
-		w.Write([]byte("Please specifiy a search in the query string"))
+		w.Write([]byte("<h1>Please specifiy a search in the query string</h1>"))
+	} else {
+		searchResult, err := processSearchQuery(searchTerm,
+			queryParams.Get("raw"), sh.client)
+		if err != nil {
+			log.Println("Failed to process search.")
+		}
+		writeSearchResponse(w, *searchResult, searchTerm)
 	}
-
-	searchResult, err := processSearchQuery(searchTerm,
-		queryParams.Get("raw"), sh.client)
-	if err != nil {
-		log.Println("Failed to process search.")
-	}
-	writeSearchResponse(w, *searchResult, searchTerm)
 }
 
 
@@ -64,12 +64,13 @@ func (rh resultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	if queryParams.Get("url") == "" {
 		w.Write([]byte("<h1>No id specified!</h1>"))
+	} else {
+		result, err := processResultQuery(queryParams.Get("url"), rh.client)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		}
+		writeResultResponse(w, result)
 	}
-	result, err := processResultQuery(queryParams.Get("url"), rh.client)
-	if err != nil {
-		w.Write([]byte(err.Error()))
-	}
-	writeResultResponse(w, result)
 }
 
 // Writes the correspondent metadata results (url, title etc.)
