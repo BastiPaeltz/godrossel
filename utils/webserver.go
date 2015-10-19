@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-var renderedTemplate = template.Must(template.ParseFiles("results.html"))
+var renderedTemplate = template.Must(template.ParseFiles("results.html", "notFound.html"))
 
 type templateData struct {
 	Result []Result
@@ -42,7 +42,7 @@ func (sh searchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	searchTerm := queryParams.Get("search")
 	if searchTerm == "" {
-		w.Write([]byte("<h1>Please specifiy a search in the query string</h1>"))
+		writeNotFoundResponse(w)
 	} else {
 		searchResult, err := processSearchQuery(searchTerm,
 			queryParams.Get("raw"), sh.client)
@@ -61,9 +61,8 @@ func (sh searchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // 'url' parameter is provided.
 func (rh resultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
-	w.Header().Set("Content-Type", "text/html")
 	if queryParams.Get("url") == "" {
-		w.Write([]byte("<h1>No id specified!</h1>"))
+		writeNotFoundResponse(w)
 	} else {
 		result, err := processResultQuery(queryParams.Get("url"), rh.client)
 		if err != nil {
@@ -79,12 +78,23 @@ func writeSearchResponse(w http.ResponseWriter, results []Result, searchTerm str
 	w.Header().Set("Content-Type", "text/html")
 	err := renderedTemplate.ExecuteTemplate(w, "results.html", &templateData{results, searchTerm})
 	if err != nil {
-		log.Println("Template rendering error", err.Error())
+		log.Println("Template rendering error for results.html", err.Error())
 	}
 }
 
 // Writes the correspondent (minified) html
 // for a single result to the client.
 func writeResultResponse(w http.ResponseWriter, minHTML string) {
+	w.Header().Set("Content-Type", "text/html")
 	w.Write([]byte(minHTML))
+}
+
+// Writes html page with a "Resource not found" error
+// back to the client.
+func writeNotFoundResponse(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "text/html")
+	err := renderedTemplate.ExecuteTemplate(w, "notFound.html", nil)
+	if err != nil {
+		log.Println("Template rendering error for notFound.html", err.Error())
+	}
 }

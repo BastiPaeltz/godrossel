@@ -5,7 +5,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 </head>
 <body>
-<h1>This is your godrossel result for '{{.Search}}'</h1>
+<h1>Sorry, we couldn't find that.</h1>
+<p>But you can search for something else instead...</p>
 <br>
 
 <form id="searchForm">
@@ -14,15 +15,6 @@
     <input type="submit" value="Search">
 </form>
 
-<br>
-{{ range $key, $value := .Result}}
-<li><strong>{{ $key }}</strong>:
-    <a href='/results?url={{ $value.Link }}'>{{ $value.HtmlTitle }}</a> -
-    <i>{{$value.DisplayLink }} </i>
-    <br>{{ $value.HtmlSnippet }}
-</li>
-<br>
-
 <script>
     $('#searchForm').submit(function (ev) {
         ev.preventDefault();
@@ -30,7 +22,5 @@
                 document.getElementById("searchField").value;
     });
 </script>
-
-{{ end }}
 </body>
 </html>
