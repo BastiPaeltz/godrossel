@@ -8,7 +8,8 @@ import (
 )
 
 // usage from cmd line:
-//   godrossel SERVER_ADDR GOOGLE_SEARCH_API_KEY GOOGLE_SEARCH_CX_ID
+//   godrossel SERVER_ADDR
+// CXID as well as APIKEY have to be set as Environment Variables
 // more info about cxid and api key:
 // https://console.developers.google.com/project/ (api key)
 // https://cse.google.com/all (cx id)

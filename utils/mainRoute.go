@@ -58,8 +58,9 @@ func processSearchQuery(query string, raw string, client *redis.Client) (*[]Resu
 // Else this returns a map containing the 5 best matches/results
 // (in descending order).
 func googleSearchQuery(query string) (*[]Result, error) {
-	apiKey := string(os.Args[2])
-	cxID := string(os.Args[3])
+	cxID, _ := os.LookupEnv("CXID")
+	apiKey, _ := os.LookupEnv("APIKEY")
+
 	queryString := fmt.Sprint("key=", apiKey, "&cx=", cxID, "&q=", url.QueryEscape(query), "&num=5")
 	apiResponse, err := http.Get(apiBaseURL + queryString)
 
