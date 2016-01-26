@@ -8,9 +8,9 @@
 <h1>This is your godrossel result for '{{.Search}}'</h1>
 <br>
 
-<form id="searchForm">
+<form id="searchForm" action="?search=" method="GET">
     <label for="searchField">Search for something:</label>
-    <input type="text" id="searchField">
+    <input type="text" name="search">
     <input type="submit" value="Search">
 </form>
 
@@ -23,13 +23,6 @@
 </li>
 <br>
 
-<script>
-    $('#searchForm').submit(function (ev) {
-        ev.preventDefault();
-        location.search = "?search=" +
-                document.getElementById("searchField").value;
-    });
-</script>
 
 {{ end }}
 </body>

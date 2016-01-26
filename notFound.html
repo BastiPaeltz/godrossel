@@ -9,18 +9,12 @@
 <p>But you can search for something else instead...</p>
 <br>
 
-<form id="searchForm">
+<form id="searchForm" action="?search=" method="GET">
     <label for="searchField">Search for something:</label>
-    <input type="text" id="searchField">
+    <input type="text" name="search">
     <input type="submit" value="Search">
 </form>
 
-<script>
-    $('#searchForm').submit(function (ev) {
-        ev.preventDefault();
-        location.search = "?search=" +
-                document.getElementById("searchField").value;
-    });
-</script>
+
 </body>
 </html>
